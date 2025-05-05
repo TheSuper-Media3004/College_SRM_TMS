@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boarding Points - College TMS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{{ 'dark-mode' if session.get('theme') == 'dark' }}">
+    <div class="container">
+        <header>
+            <h1>College TMS</h1>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">🏠 Dashboard</a></li>
+                    <li><a href="{{ url_for('buses') }}">🚌 Buses</a></li>
+                    <li><a href="{{ url_for('routes') }}" class="active">🛣️ Routes</a></li>
+                    <li><a href="{{ url_for('students') }}">🎓 Students</a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">🌙 Dark Mode</button>
+        </header>
+
+        <main>
+            <div class="breadcrumb">
+                <a href="{{ url_for('routes') }}">Routes</a> &gt; Boarding Points for {{ route.route_number }} - {{ route.route_name }}
+            </div>
+
+            <h2 class="page-title">Manage Boarding Points for {{ route.route_number }} - {{ route.route_name }}</h2>
+
+            <section class="form-section card">
+                <h3>Add Boarding Point</h3>
+                <form action="{{ url_for('boarding_points', route_id=route.id) }}" method="post" class="form-flex">
+                    <div class="form-group">
+                        <label for="stop_number">Stop Number</label>
+                        <input type="number" id="stop_number" name="stop_number" required min="1" placeholder="e.g. 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" required placeholder="e.g. Kellys">
+                    </div>
+                    <div class="form-group time-group">
+                        <label for="pickup_hour">Pickup Time</label>
+                        <div class="time-inputs">
+                            <select id="pickup_hour" name="pickup_hour" required>
+                                <option value="">Hour</option>
+                                {% for hour in range(0, 24) %}
+                                    <option value="{{ hour }}">{{ '%02d'|format(hour) }}</option>
+                                {% endfor %}
+                            </select>
+                            <span>:</span>
+                            <select id="pickup_minute" name="pickup_minute" required>
+                                <option value="">Minute</option>
+                                {% for minute in range(0, 60, 5) %}
+                                    <option value="{{ minute }}">{{ '%02d'|format(minute) }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Boarding Point</button>
+                </form>
+            </section>
+
+            <section class="data-section card">
+                <h3>All Boarding Points</h3>
+                {% if boarding_points %}
+                    <div class="table-responsive">
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Stop Number</th>
+                                <th>Location</th>
+                                <th>Pickup Time</th>
++                               <th>Travel Time to Next Stop</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for point in boarding_points %}
+                                <tr>
+                                    <td>{{ point.stop_number }}</td>
+                                    <td>{{ point.location }}</td>
+                                    <td>{{ point.pickup_time.strftime('%I:%M %p') }}</td>
++                                   <td>
++                                       {% if not loop.last %}
++                                           {{ travel_times[loop.index0] if travel_times and travel_times|length > loop.index0 else 'N/A' }}
++                                       {% else %}
++                                           -
++                                       {% endif %}
++                                   </td>
+                                    <td>
+                                        <form action="{{ url_for('delete_boarding_point', id=point.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this boarding point?');">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                {% else %}
+                    <p>No boarding points available for this route.</p>
+                {% endif %}
+            </section>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </main>
+
+        <footer>
+            <p>&copy; 2025 College Transportation Management System</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

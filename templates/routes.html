@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routes Management - College TMS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{{ 'dark-mode' if session.get('theme') == 'dark' }}">
+    <div class="container">
+        <header>
+            <h1>College TMS</h1>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">🏠 Dashboard</a></li>
+                    <li><a href="{{ url_for('buses') }}">🚌 Buses</a></li>
+                    <li><a href="{{ url_for('routes') }}" class="active">🛣️ Routes</a></li>
+                    <li><a href="{{ url_for('students') }}">🎓 Students</a></li>
+                    <li><a href="{{ url_for('chatbot') }}">🤖 Chatbot</a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">🌙 Dark Mode</button>
+        </header>
+
+        <main>
+            <h2>Manage Routes</h2>
+
+            <section class="form-section">
+                <h3>Add Route</h3>
+                <form action="{{ url_for('routes') }}" method="post">
+                    <div class="form-group">
+                        <label for="route_number">Route Number</label>
+                        <input type="text" id="route_number" name="route_number" required placeholder="e.g., S1">
+                    </div>
+                    <div class="form-group">
+                        <label for="route_name">Route Name</label>
+                        <input type="text" id="route_name" name="route_name" required placeholder="e.g., Avadi">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Route</button>
+                </form>
+            </section>
+
+            <section class="action-section">
+                <form action="{{ url_for('import_cet_routes') }}" method="post">
+                    <button type="submit" class="btn btn-secondary">Import CET Routes</button>
+                </form>
+            </section>
+
+            <section class="data-section">
+                <h3>All Routes</h3>
+                {% if routes %}
+                    <div class="route-cards">
+                        {% for route in routes %}
+                        <div class="route-card">
+                            <div class="route-header">
+                                <h4>ROUTE NO: {{ route.route_number }}</h4>
+                                <h5>{{ route.route_name }}</h5>
+                            </div>
+                            {% if route.boarding_points %}
+                                <table class="route-stops">
+                                    <thead>
+                                        <tr>
+                                            <th>S.No</th>
+                                            <th>Boarding Points</th>
+                                            <th>Pickup Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for point in route.boarding_points|sort(attribute='stop_number') %}
+                                        <tr>
+                                            <td>{{ point.stop_number }}</td>
+                                            <td>{{ point.location }}</td>
+                                            <td>{{ point.pickup_time.strftime('%I:%M %p') }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="no-stops">
+                                    <p>No boarding points added yet.</p>
+                                    <a href="{{ url_for('boarding_points', route_id=route.id) }}" class="btn btn-primary">Add Boarding Points</a>
+                                </div>
+                            {% endif %}
+                            <div class="route-actions">
+                                <a href="{{ url_for('boarding_points', route_id=route.id) }}" class="btn btn-secondary">Manage Stops</a>
+                                <form action="{{ url_for('delete_route', id=route.id) }}" method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this route?');">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No routes available.</p>
+                {% endif %}
+            </section>
+
+            <section class="info-section">
+                <h3>Bus Fee Information</h3>
+                <div class="info-card">
+                    <p><strong>Bus Fee:</strong> ₹70,000/- for the Academic Year 2024-2025</p>
+                    <p><strong>Payment Method:</strong> Online booking facility (NEFT only)</p>
+                    <p><strong>Note:</strong> For first-year students, bus booking will be made after obtaining ID card.</p>
+                    <p><strong>Important:</strong> Seats will be allotted subject to availability. Fee once paid will not be refunded/adjusted under any circumstances.</p>
+                    <p><strong>Helpline:</strong> 7338828316, 8925801547, 8925801548</p>
+                </div>
+            </section>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </main>
+
+        <footer>
+            <p>&copy; 2025 College Transportation Management System</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

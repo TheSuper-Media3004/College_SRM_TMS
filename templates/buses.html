@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buses Management - College TMS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{{ 'dark-mode' if session.get('theme') == 'dark' }}">
+    <div class="container">
+        <header>
+            <h1>College TMS</h1>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">🏠 Dashboard</a></li>
+                    <li><a href="{{ url_for('buses') }}" class="active">🚌 Buses</a></li>
+                    <li><a href="{{ url_for('routes') }}">🛣️ Routes</a></li>
+                    <li><a href="{{ url_for('students') }}">🎓 Students</a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">🌙 Dark Mode</button>
+        </header>
+
+        <main>
+            <h2>Manage Buses</h2>
+
+            <section class="form-section">
+                <h3>Add Bus</h3>
+                <form action="{{ url_for('buses') }}" method="post">
+                    <div class="form-group">
+                        <label for="bus_number">Bus Number</label>
+                        <input type="text" id="bus_number" name="bus_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="driver_name">Driver Name</label>
+                        <input type="text" id="driver_name" name="driver_name" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Bus</button>
+                </form>
+            </section>
+
+            <section class="data-section">
+                <h3>All Buses</h3>
+                {% if buses %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Bus Number</th>
+                                <th>Driver Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bus in buses %}
+                                <tr>
+                                    <td>{{ bus.id }}</td>
+                                    <td>{{ bus.bus_number }}</td>
+                                    <td>{{ bus.driver_name }}</td>
+                                    <td>
+                                        <form action="{{ url_for('delete_bus', id=bus.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this bus?');">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No buses available.</p>
+                {% endif %}
+            </section>
+
+            <section class="info-section">
+                <h3>Campus Arrival & Departure Times</h3>
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Schedule</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Spell-I</td>
+                            <td>7:40 AM</td>
+                            <td>4:20 PM</td>
+                        </tr>
+                        <tr>
+                            <td>Spell-II</td>
+                            <td>8:30 AM</td>
+                            <td>5:15 PM</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </main>
+
+        <footer>
+            <p>&copy; 2025 College Transportation Management System</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

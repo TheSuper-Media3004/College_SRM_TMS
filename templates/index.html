@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College TMS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{{ 'dark-mode' if session.get('theme') == 'dark' }}">
+    <div class="container">
+        <header>
+            <h1>College TMS</h1>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('index') }}" class="active">🏠 Dashboard</a></li>
+                    <li><a href="{{ url_for('buses') }}">🚌 Buses</a></li>
+                    <li><a href="{{ url_for('routes') }}">🛣️ Routes</a></li>
+                    <li><a href="{{ url_for('students') }}">🎓 Students</a></li>
+                    <li><a href="{{ url_for('complaints') }}">📝 Submit Complaint</a></li>
+                    <li><a href="{{ url_for('view_complaints') }}">📋 View Complaints</a></li>
+                    <li><a href="{{ url_for('chatbot') }}">🤖 Chatbot</a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">🌙 Dark Mode</button>
+        </header>
+
+        <main>
+            <div class="user-welcome">
+                <h2>Welcome, {{ current_user.name }}</h2>
+                <p>Today is Monday, May 05, 2025, 2:18 AM IST</p>
+            </div>
+
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h3>{{ buses_count }}</h3>
+                    <p>Buses</p>
+                </div>
+                <div class="card">
+                    <h3>{{ routes_count }}</h3>
+                    <p>Routes</p>
+                </div>
+                <div class="card">
+                    <h3>{{ students_count }}</h3>
+                    <p>Students</p>
+                </div>
+            </div>
+
+            <section class="info-section">
+                <h3>Campus Arrival & Departure Times</h3>
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Schedule</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Spell-I</td>
+                            <td>7:40 AM</td>
+                            <td>4:20 PM</td>
+                        </tr>
+                        <tr>
+                            <td>Spell-II</td>
+                            <td>8:30 AM</td>
+                            <td>5:15 PM</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="info-section">
+                <h3>Bus Fee Information</h3>
+                <div class="info-card">
+                    <p><strong>Bus Fee:</strong> ₹70,000/- for the Academic Year 2024-2025</p>
+                    <p><strong>Payment Method:</strong> Online booking facility (NEFT only)</p>
+                    <p><strong>Note:</strong> For first-year students, bus booking will be made after obtaining ID card.</p>
+                    <p><strong>Important:</strong> Seats will be allotted subject to availability. Fee once paid will not be refunded/adjusted under any circumstances.</p>
+                    <p><strong>Helpline:</strong> 7338828316, 8925801547, 8925801548</p>
+                </div>
+            </section>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </main>
+<!-- Floating Chatbot Icon and Frame -->
+<style>
+#floating-chatbot-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 9999;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#floating-chatbot-btn:hover {
+  background: #0056b3;
+}
+#floating-chatbot-frame {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 370px;
+  max-width: 95vw;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  z-index: 10000;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+#floating-chatbot-header {
+  background: #007bff;
+  color: #fff;
+  padding: 12px 16px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#floating-chatbot-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+@media (max-width: 500px) {
+  #floating-chatbot-frame {
+    width: 98vw;
+    right: 1vw;
+    bottom: 80px;
+  }
+}
+</style>
+<button id="floating-chatbot-btn" title="Chat with Transport Assistant">💬</button>
+<div id="floating-chatbot-frame">
+  <div id="floating-chatbot-header">
+    Transport Chatbot
+    <button id="floating-chatbot-close" title="Close">&times;</button>
+  </div>
+  <div id="chat-messages" style="height:250px;overflow-y:auto;background:#f9f9f9;padding:10px;border-radius:0 0 5px 5px;margin-bottom:0;"></div>
+  <form id="chat-form" autocomplete="off" style="padding:10px;background:#f5f5f5;display:flex;gap:8px;">
+    <input type="text" id="user-input" class="form-control" placeholder="Ask about routes, timings..." style="flex:1;" required>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+</div>
+<script>
+// Floating Chatbot Toggle
+const chatBtn = document.getElementById('floating-chatbot-btn');
+const chatFrame = document.getElementById('floating-chatbot-frame');
+const chatClose = document.getElementById('floating-chatbot-close');
+chatBtn.onclick = () => { chatFrame.style.display = 'flex'; chatBtn.style.display = 'none'; };
+chatClose.onclick = () => { chatFrame.style.display = 'none'; chatBtn.style.display = 'flex'; };
+// Chatbot AJAX logic
+const chatForm = document.getElementById('chat-form');
+const chatMessages = document.getElementById('chat-messages');
+chatForm.onsubmit = async function(e) {
+  e.preventDefault();
+  const input = document.getElementById('user-input');
+  const userMsg = input.value.trim();
+  if (!userMsg) return;
+  chatMessages.innerHTML += `<div style='text-align:right;margin:4px 0;'><span style='background:#007bff;color:#fff;padding:6px 12px;border-radius:16px;display:inline-block;'>${userMsg}</span></div>`;
+  input.value = '';
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Show loading
+  chatMessages.innerHTML += `<div id='chatbot-loading' style='text-align:left;margin:4px 0;'><span style='background:#eee;color:#333;padding:6px 12px;border-radius:16px;display:inline-block;'>...</span></div>`;
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  try {
+    const resp = await fetch('/chatbot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMsg })
+    });
+    const data = await resp.json();
+    document.getElementById('chatbot-loading').remove();
+    chatMessages.innerHTML += `<div style='text-align:left;margin:4px 0;'><span style='background:#f1f1f1;color:#222;padding:6px 12px;border-radius:16px;display:inline-block;'>${data.reply.replace(/\n/g,'<br>')}</span></div>`;
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  } catch (err) {
+    document.getElementById('chatbot-loading').remove();
+    chatMessages.innerHTML += `<div style='text-align:left;margin:4px 0;'><span style='background:#f8d7da;color:#721c24;padding:6px 12px;border-radius:16px;display:inline-block;'>Error: ${err.message}</span></div>`;
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+};
+</script>
+        <footer>
+            <p>&copy; 2025 College Transportation Management System</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

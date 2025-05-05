@@ -1,0 +1,14 @@
+{% extends 'index.html' %}
+{% block content %}
+<div id="chatbot-container" style="max-width:400px;margin:30px auto;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+  <h3>Transport Chatbot</h3>
+  <div id="chat-messages" style="height:250px;overflow-y:auto;background:#f9f9f9;padding:10px;border-radius:5px;margin-bottom:10px;"></div>
+  <form id="chat-form" autocomplete="off">
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="user-input" class="form-control" placeholder="Ask about routes, timings..." style="flex:1;" required>
+      <button type="submit" class="btn btn-primary">Send</button>
+    </div>
+  </form>
+</div>
+<script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+{% endblock %}

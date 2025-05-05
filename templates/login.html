@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - College TMS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{{ 'dark-mode' if session.get('theme') == 'dark' }}">
+    <div class="container">
+        <header>
+            <h1>College TMS</h1>
+            <button class="theme-toggle">🌙 Dark Mode</button>
+        </header>
+
+        <main>
+            <div class="login-container">
+                <div class="form-section">
+                    <h2>Login</h2>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="flash-messages">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <div class="form-group">
+                            <label for="email">Work Email ID</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox">
+                                <input type="checkbox" name="remember">
+                                Remember me
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+
+                <div class="login-info">
+                    <h3>College Transportation Management System</h3>
+                    <p>Login with your work email ID to access the transportation management system.</p>
+                    <div class="info-card">
+                        <p><strong>Bus Fee:</strong> ₹70,000/- for the Academic Year 2024-2025</p>
+                        <p><strong>Note:</strong> For first-year students, bus booking will be made after obtaining ID card.</p>
+                        <p><strong>Helpline:</strong> 7338828316, 8925801547, 8925801548</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 College Transportation Management System</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

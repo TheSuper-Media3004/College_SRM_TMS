@@ -1,0 +1,4 @@
+<option value="">-- Select Boarding Point --</option>
+{% for point in boarding_points %}
+    <option value="{{ point.id }}">{{ point.stop_number }} - {{ point.location }} ({{ point.pickup_time.strftime('%I:%M %p') }})</option>
+{% endfor %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Submitted Complaints</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Bus</th>
+                <th>Subject</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+            <tr>
+                <td>{{ complaint.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{% if complaint.user %}{{ complaint.user.name }}{% else %}Anonymous{% endif %}</td>
+                <td>{% if complaint.bus %}{{ complaint.bus.bus_number }}{% else %}Support{% endif %}</td>
+                <td>{{ complaint.subject }}</td>
+                <td>{{ complaint.message }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
